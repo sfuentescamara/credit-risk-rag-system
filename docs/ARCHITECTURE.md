@@ -19,7 +19,7 @@ The Credit Risk RAG System is built using a microservices architecture pattern w
 - Query expansion and rewriting
 
 ### 3. LLM Integration (`src/llm/`)
-- OpenAI API integration
+- Ollama/LLAMA local model integration
 - Prompt engineering and templates
 - Response parsing and validation
 - Fallback and retry logic
@@ -52,7 +52,7 @@ User Request → API → RAG Engine → Vector DB
 - **Database**: PostgreSQL
 - **Cache**: Redis
 - **Vector Store**: ChromaDB
-- **LLM**: OpenAI GPT-4
+- **LLM**: Ollama with LLAMA models (local deployment)
 - **Task Queue**: Celery
 - **Monitoring**: Prometheus
 

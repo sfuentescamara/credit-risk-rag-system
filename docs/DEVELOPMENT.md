@@ -6,7 +6,7 @@
 - Python 3.12+
 - Docker and Docker Compose
 - Git
-- OpenAI API key
+- Ollama (optional, for local LLM deployment)
 
 ### Initial Setup
 
@@ -155,7 +155,8 @@ pip install -r requirements.txt
 - Verify CHROMA_URL configuration
 - Check authentication credentials
 
-### OpenAI API Issues
-- Verify API key is set
-- Check rate limits
-- Monitor API usage
+### Ollama/LLAMA Issues
+- Ensure Ollama service is running
+- Verify OLLAMA_BASE_URL configuration
+- Check model is downloaded (run `ollama pull llama3.2`)
+- Monitor GPU/CPU usage for model inference

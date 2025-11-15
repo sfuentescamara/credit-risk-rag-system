@@ -31,7 +31,7 @@ This system leverages RAG architecture to provide intelligent credit risk assess
        │                    │
        │                    ▼
        │            ┌──────────────┐
-       │            │   LLM/OpenAI │
+       │            │ Ollama/LLAMA │
        │            └──────────────┘
        │
        ▼
@@ -71,7 +71,7 @@ credit-risk-rag-system/
 - Docker & Docker Compose
 - PostgreSQL 16+
 - Redis 7+
-- OpenAI API key (or compatible LLM API)
+- Ollama (for local LLAMA models) or sufficient resources to run LLAMA models locally
 
 ## Quick Start
 
@@ -89,7 +89,7 @@ cd credit-risk-rag-system
 cp .env.example .env
 
 # Edit .env with your configuration
-# IMPORTANT: Set your OPENAI_API_KEY
+# Configure Ollama model settings if needed
 nano .env
 ```
 
@@ -191,7 +191,7 @@ Configuration is managed through environment variables (see `.env.example`):
 - **Database**: PostgreSQL connection settings
 - **Redis**: Cache and task queue configuration
 - **ChromaDB**: Vector store settings
-- **OpenAI**: API key and model selection
+- **Ollama/LLAMA**: Local LLM model configuration (base URL, model selection)
 - **Application**: Port, host, logging levels
 
 ## Deployment
@@ -209,7 +209,8 @@ docker run -p 8000:8000 --env-file .env credit-risk-rag-system:latest
 ### Environment Variables
 
 Ensure all required environment variables are set in production:
-- `OPENAI_API_KEY`
+- `OLLAMA_BASE_URL`
+- `OLLAMA_MODEL`
 - `DATABASE_URL`
 - `REDIS_URL`
 - `SECRET_KEY`
@@ -241,7 +242,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with [FastAPI](https://fastapi.tiangolo.com/)
 - RAG powered by [LangChain](https://langchain.com/)
 - Vector search with [ChromaDB](https://www.trychroma.com/)
-- LLM integration via [OpenAI](https://openai.com/)
+- Local LLM powered by [Ollama](https://ollama.ai/) and LLAMA models
 
 ## Support
 
