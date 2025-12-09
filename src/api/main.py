@@ -1,16 +1,13 @@
-"""
-Main FastAPI application for Credit Risk RAG System.
-"""
+"""Main FastAPI application for Credit Risk RAG System."""
 
 import logging
 from contextlib import asynccontextmanager
-from typing import Dict
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.data import VectorStore, get_chroma_settings
 from src.api.routes import router as vector_router
+from src.data import VectorStore, get_chroma_settings
 
 # Configure logging
 logging.basicConfig(
@@ -26,9 +23,7 @@ vector_store: VectorStore = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Lifespan context manager for startup and shutdown events.
-    """
+    """Lifespan context manager for startup and shutdown events."""
     # Startup
     global vector_store
     logger.info("Starting up Credit Risk RAG System...")
@@ -71,7 +66,7 @@ app.include_router(vector_router)
 
 
 @app.get("/", tags=["Root"])
-async def root() -> Dict[str, str]:
+async def root() -> dict[str, str]:
     """
     Root endpoint.
 
@@ -86,9 +81,8 @@ async def root() -> Dict[str, str]:
 
 
 @app.get("/health", tags=["Health"])
-async def health_check() -> Dict[str, str]:
-    """
-    Basic health check endpoint.
+async def health_check() -> dict[str, str]:
+    """Check basic health status.
 
     Returns:
         Dict with health status
@@ -97,9 +91,8 @@ async def health_check() -> Dict[str, str]:
 
 
 @app.get("/health/chromadb", tags=["Health"])
-async def chromadb_health() -> Dict:
-    """
-    ChromaDB health check endpoint.
+async def chromadb_health() -> dict:
+    """Check ChromaDB health status.
 
     Returns:
         Dict with ChromaDB health status
@@ -109,9 +102,7 @@ async def chromadb_health() -> Dict:
     """
     try:
         if not vector_store:
-            raise HTTPException(
-                status_code=503, detail="Vector store not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Vector store not initialized")
 
         health_status = vector_store.health_check()
 
@@ -139,7 +130,7 @@ async def chromadb_health() -> Dict:
 
 
 @app.get("/health/ready", tags=["Health"])
-async def readiness_check() -> Dict[str, str]:
+async def readiness_check() -> dict[str, str]:
     """
     Readiness check endpoint (for Kubernetes).
 
@@ -151,9 +142,7 @@ async def readiness_check() -> Dict[str, str]:
     """
     try:
         if not vector_store:
-            raise HTTPException(
-                status_code=503, detail="Vector store not initialized"
-            )
+            raise HTTPException(status_code=503, detail="Vector store not initialized")
 
         # Check ChromaDB
         health_status = vector_store.health_check()
@@ -166,13 +155,11 @@ async def readiness_check() -> Dict[str, str]:
         raise
     except Exception as e:
         logger.error(f"Readiness check failed: {e}")
-        raise HTTPException(
-            status_code=503, detail=f"Service not ready: {str(e)}"
-        )
+        raise HTTPException(status_code=503, detail=f"Service not ready: {str(e)}")
 
 
 @app.get("/health/live", tags=["Health"])
-async def liveness_check() -> Dict[str, str]:
+async def liveness_check() -> dict[str, str]:
     """
     Liveness check endpoint (for Kubernetes).
 

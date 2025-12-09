@@ -1,20 +1,17 @@
-"""
-Unit tests for vector store client.
-"""
+"""Unit tests for vector store client."""
+
+from unittest.mock import Mock, patch
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
-from typing import List
 
 from src.data import (
-    VectorStore,
     ChromaDBSettings,
     Document,
+    EmbeddingError,
     QueryRequest,
     QueryResult,
     ValidationError,
-    CollectionError,
-    EmbeddingError,
+    VectorStore,
 )
 
 
@@ -110,12 +107,8 @@ class TestAddDocuments:
             Document(id="2", content="Test doc 2", metadata={"type": "test"}),
         ]
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             result = vector_store.add_documents(documents)
 
@@ -128,9 +121,7 @@ class TestAddDocuments:
         with pytest.raises(ValidationError, match="Documents list cannot be empty"):
             vector_store.add_documents([])
 
-    def test_add_documents_with_embeddings(
-        self, vector_store, mock_chroma_client
-    ):
+    def test_add_documents_with_embeddings(self, vector_store, mock_chroma_client):
         """Test adding documents with pre-computed embeddings."""
         documents = [
             Document(
@@ -141,31 +132,18 @@ class TestAddDocuments:
             )
         ]
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             result = vector_store.add_documents(documents)
             assert result["status"] == "success"
 
-    def test_add_documents_batch_processing(
-        self, vector_store, mock_chroma_client
-    ):
+    def test_add_documents_batch_processing(self, vector_store, mock_chroma_client):
         """Test batch processing of documents."""
-        documents = [
-            Document(id=str(i), content=f"Doc {i}", metadata={})
-            for i in range(25)
-        ]
+        documents = [Document(id=str(i), content=f"Doc {i}", metadata={}) for i in range(25)]
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             result = vector_store.add_documents(documents, batch_size=10)
 
@@ -190,12 +168,8 @@ class TestQueryDocuments:
 
         query = QueryRequest(query_text="test query", n_results=2)
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             results = vector_store.query(query)
 
@@ -214,16 +188,10 @@ class TestQueryDocuments:
             "embeddings": None,
         }
 
-        query = QueryRequest(
-            query_embedding=[0.1, 0.2, 0.3], n_results=1
-        )
+        query = QueryRequest(query_embedding=[0.1, 0.2, 0.3], n_results=1)
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             results = vector_store.query(query)
             assert len(results) == 1
@@ -244,14 +212,10 @@ class TestQueryDocuments:
             where={"type": "financial"},
         )
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
-            results = vector_store.query(query)
+            _ = vector_store.query(query)
             collection = mock_chroma_client.get_or_create_collection.return_value
             collection.query.assert_called_once()
 
@@ -261,16 +225,10 @@ class TestUpdateDocuments:
 
     def test_update_documents_success(self, vector_store, mock_chroma_client):
         """Test successful document update."""
-        documents = [
-            Document(id="1", content="Updated content", metadata={"updated": True})
-        ]
+        documents = [Document(id="1", content="Updated content", metadata={"updated": True})]
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             result = vector_store.update_documents(documents)
 
@@ -290,12 +248,8 @@ class TestDeleteDocuments:
 
     def test_delete_by_ids(self, vector_store, mock_chroma_client):
         """Test deletion by document IDs."""
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             result = vector_store.delete_documents(ids=["1", "2"])
 
@@ -305,24 +259,16 @@ class TestDeleteDocuments:
 
     def test_delete_by_filter(self, vector_store, mock_chroma_client):
         """Test deletion by metadata filter."""
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
-            result = vector_store.delete_documents(
-                where={"type": "obsolete"}
-            )
+            result = vector_store.delete_documents(where={"type": "obsolete"})
 
             assert result["status"] == "success"
 
     def test_delete_no_params(self, vector_store):
         """Test deletion without parameters."""
-        with pytest.raises(
-            ValidationError, match="Either ids or where filter must be provided"
-        ):
+        with pytest.raises(ValidationError, match="Either ids or where filter must be provided"):
             vector_store.delete_documents()
 
 
@@ -331,12 +277,8 @@ class TestCollectionInfo:
 
     def test_get_collection_info(self, vector_store, mock_chroma_client):
         """Test getting collection information."""
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             info = vector_store.get_collection_info()
 
@@ -349,12 +291,8 @@ class TestHealthCheck:
 
     def test_health_check_healthy(self, vector_store, mock_chroma_client):
         """Test successful health check."""
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             status = vector_store.health_check()
 
@@ -366,12 +304,8 @@ class TestHealthCheck:
         """Test health check failure."""
         mock_chroma_client.heartbeat.side_effect = Exception("Connection failed")
 
-        with patch.object(
-            vector_store._pool, "get_client"
-        ) as mock_get_client:
-            mock_get_client.return_value.__enter__.return_value = (
-                mock_chroma_client
-            )
+        with patch.object(vector_store._pool, "get_client") as mock_get_client:
+            mock_get_client.return_value.__enter__.return_value = mock_chroma_client
 
             status = vector_store.health_check()
 

@@ -10,18 +10,15 @@ This script shows how to:
 5. Check health status
 """
 
-import sys
 import os
+import sys
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Add src to path before importing from src
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.join(current_dir, "..")
+sys.path.insert(0, parent_dir)
 
-from src.data import (
-    VectorStore,
-    ChromaDBSettings,
-    Document,
-    QueryRequest,
-)
+from src.data import ChromaDBSettings, Document, QueryRequest, VectorStore  # noqa: E402
 
 
 def main():
@@ -152,7 +149,7 @@ def main():
     # 8. Delete a document
     print("\n8. Deleting document cr_005...")
     result = store.delete_documents(ids=["cr_005"])
-    print(f"✓ Deleted document(s)")
+    print("✓ Deleted document(s)")
 
     # 9. Final collection info
     print("\n9. Final collection information...")

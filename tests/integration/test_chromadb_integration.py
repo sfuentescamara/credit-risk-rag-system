@@ -6,18 +6,11 @@ Set CHROMA_URL environment variable or use default localhost:8001
 """
 
 import os
-import pytest
 import time
-from typing import List
 
-from src.data import (
-    VectorStore,
-    ChromaDBSettings,
-    Document,
-    QueryRequest,
-    ValidationError,
-)
+import pytest
 
+from src.data import ChromaDBSettings, Document, QueryRequest, ValidationError, VectorStore
 
 # Skip integration tests if ChromaDB is not available
 pytestmark = pytest.mark.skipif(
@@ -56,7 +49,7 @@ def vector_store(chroma_settings):
 
 
 @pytest.fixture
-def sample_documents() -> List[Document]:
+def sample_documents() -> list[Document]:
     """Create sample documents for testing."""
     return [
         Document(
@@ -175,9 +168,7 @@ class TestDocumentOperations:
         for result in results:
             assert result.metadata.get("type") == "financial"
 
-    def test_query_with_embeddings_included(
-        self, vector_store, sample_documents
-    ):
+    def test_query_with_embeddings_included(self, vector_store, sample_documents):
         """Test query that includes embedding vectors."""
         vector_store.add_documents(sample_documents[:2])
         time.sleep(0.5)
@@ -248,9 +239,7 @@ class TestDocumentOperations:
         time.sleep(0.5)
 
         # Delete by filter
-        result = vector_store.delete_documents(
-            where={"temporary": True}
-        )
+        result = vector_store.delete_documents(where={"temporary": True})
 
         assert result["status"] == "success"
 
@@ -268,7 +257,7 @@ class TestPerformance:
         query = QueryRequest(query_text="credit risk", n_results=5)
 
         start_time = time.time()
-        results = vector_store.query(query)
+        _ = vector_store.query(query)
         elapsed_ms = (time.time() - start_time) * 1000
 
         # Should complete quickly for small dataset
@@ -315,9 +304,7 @@ class TestErrorHandling:
 
     def test_delete_without_params(self, vector_store):
         """Test error when deleting without parameters."""
-        with pytest.raises(
-            ValidationError, match="Either ids or where filter"
-        ):
+        with pytest.raises(ValidationError, match="Either ids or where filter"):
             vector_store.delete_documents()
 
 

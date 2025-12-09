@@ -6,14 +6,16 @@ This script sets up the vector store with initial credit risk documents
 for development and testing purposes.
 """
 
-import sys
-import os
 import logging
+import os
+import sys
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Add src to path before importing from src
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.join(current_dir, "..")
+sys.path.insert(0, parent_dir)
 
-from src.data import VectorStore, Document
+from src.data import Document, VectorStore  # noqa: E402
 
 # Configure logging
 logging.basicConfig(
@@ -99,9 +101,7 @@ def main():
 
         # Verify
         info = store.get_collection_info()
-        logger.info(
-            f"Collection '{info.name}' now contains {info.count} documents"
-        )
+        logger.info(f"Collection '{info.name}' now contains {info.count} documents")
 
         # Close connection
         store.close()

@@ -1,9 +1,7 @@
-"""
-API routes for vector store operations.
-"""
+"""API routes for vector store operations."""
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
 
@@ -28,18 +26,16 @@ def get_vector_store() -> VectorStore:
     from src.api.main import vector_store
 
     if not vector_store:
-        raise HTTPException(
-            status_code=503, detail="Vector store not initialized"
-        )
+        raise HTTPException(status_code=503, detail="Vector store not initialized")
     return vector_store
 
 
-@router.post("/documents", response_model=Dict[str, Any])
+@router.post("/documents", response_model=dict[str, Any])
 async def add_documents(
-    documents: List[Document],
-    collection_name: Optional[str] = None,
-    batch_size: Optional[int] = None,
-) -> Dict[str, Any]:
+    documents: list[Document],
+    collection_name: str | None = None,
+    batch_size: int | None = None,
+) -> dict[str, Any]:
     """
     Add documents to the vector store.
 
@@ -65,10 +61,10 @@ async def add_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/query", response_model=List[QueryResult])
+@router.post("/query", response_model=list[QueryResult])
 async def query_documents(
-    query_request: QueryRequest, collection_name: Optional[str] = None
-) -> List[QueryResult]:
+    query_request: QueryRequest, collection_name: str | None = None
+) -> list[QueryResult]:
     """
     Query documents from the vector store.
 
@@ -81,9 +77,7 @@ async def query_documents(
     """
     try:
         store = get_vector_store()
-        results = store.query(
-            query_request=query_request, collection_name=collection_name
-        )
+        results = store.query(query_request=query_request, collection_name=collection_name)
         return results
 
     except Exception as e:
@@ -91,10 +85,10 @@ async def query_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.put("/documents", response_model=Dict[str, Any])
+@router.put("/documents", response_model=dict[str, Any])
 async def update_documents(
-    documents: List[Document], collection_name: Optional[str] = None
-) -> Dict[str, Any]:
+    documents: list[Document], collection_name: str | None = None
+) -> dict[str, Any]:
     """
     Update existing documents in the vector store.
 
@@ -107,9 +101,7 @@ async def update_documents(
     """
     try:
         store = get_vector_store()
-        result = store.update_documents(
-            documents=documents, collection_name=collection_name
-        )
+        result = store.update_documents(documents=documents, collection_name=collection_name)
         return result
 
     except Exception as e:
@@ -117,12 +109,12 @@ async def update_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.delete("/documents", response_model=Dict[str, Any])
+@router.delete("/documents", response_model=dict[str, Any])
 async def delete_documents(
-    ids: Optional[List[str]] = Query(default=None),
-    where: Optional[Dict[str, Any]] = None,
-    collection_name: Optional[str] = None,
-) -> Dict[str, Any]:
+    ids: list[str] | None = Query(default=None),
+    where: dict[str, Any] | None = None,
+    collection_name: str | None = None,
+) -> dict[str, Any]:
     """
     Delete documents from the vector store.
 
@@ -136,9 +128,7 @@ async def delete_documents(
     """
     try:
         store = get_vector_store()
-        result = store.delete_documents(
-            ids=ids, where=where, collection_name=collection_name
-        )
+        result = store.delete_documents(ids=ids, where=where, collection_name=collection_name)
         return result
 
     except Exception as e:
@@ -146,8 +136,8 @@ async def delete_documents(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/collections/{collection_name}", response_model=Dict[str, Any])
-async def get_collection_info(collection_name: str) -> Dict[str, Any]:
+@router.get("/collections/{collection_name}", response_model=dict[str, Any])
+async def get_collection_info(collection_name: str) -> dict[str, Any]:
     """
     Get information about a collection.
 
