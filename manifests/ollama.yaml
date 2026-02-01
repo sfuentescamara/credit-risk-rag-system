@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama
+  namespace: dev
+  labels:
+    app: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: localhost:5000/ollama:latest
+        ports:
+          - containerPort: 11434
+            hostPort: 11434
+        # resources:
+        #   limits:
+        #     nvidia.com/gpu: 1           # Request 1 GPU
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "2"
+          limits:
+            memory: "4Gi"
+            cpu: "4"
+        volumeMounts:
+          - name: ollama-storage
+            mountPath: /root/.ollama
+        livenessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 60      # Ollama needs time to start
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 5
+          timeoutSeconds: 5
+      volumes:
+        - name: ollama-storage
+          persistentVolumeClaim:
+            claimName: ollama-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama              # Other pods connect via "ollama:11434"
+  namespace: dev
+spec:
+  selector:
+    app: ollama             # Routes to pods with this label
+  ports:
+    - port: 11434              # Service port
+      targetPort: 11434        # Container port
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ollama-pvc
+  namespace: dev
+spec:
+  accessModes:
+    - ReadWriteOnce           # Single node can mount read-write
+  resources:
+    requests:
+      storage: 5Gi            # Adjust size as needed
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ollama
+  namespace: dev
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  rules:
+    - host: ollama.dev.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ollama
+                port:
+                  number: 11434

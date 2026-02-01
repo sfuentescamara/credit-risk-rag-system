@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: dev
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: localhost:5000/redis:7-alpine
+        command: ["redis-server", "--appendonly", "yes"]
+        ports:
+          - containerPort: 6379
+        volumeMounts:
+          - name: redis-storage
+            mountPath: /data
+        livenessProbe:           # Maps to healthcheck
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["redis-cli", "ping"]
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+        - name: redis-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: dev
+spec:
+  selector:
+    app: redis             # Routes to pods with this label
+  ports:
+    - port: 6379              # Service port
+      targetPort: 6379        # Container port
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: dev
+spec:
+  accessModes:
+    - ReadWriteOnce           # Single node can mount read-write
+  resources:
+    requests:
+      storage: 5Gi            # Adjust size as needed
