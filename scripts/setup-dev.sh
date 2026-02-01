@@ -12,11 +12,11 @@ echo "Python version: $python_version"
 
 # Create virtual environment
 echo "Creating virtual environment..."
-python3.12 -m venv venv
+python3.12 -m venv env
 
 # Activate virtual environment
 echo "Activating virtual environment..."
-source venv/bin/activate
+source env/bin/activate
 
 # Upgrade pip
 echo "Upgrading pip..."
@@ -52,7 +52,7 @@ echo "Setup complete!"
 echo ""
 echo "Next steps:"
 echo "1. Activate virtual environment: source venv/bin/activate"
-echo "2. Edit .env with your configuration (especially OPENAI_API_KEY)"
+echo "2. Edit .env with your configuration"
 echo "3. Start Docker services: docker-compose up -d"
 echo "4. Run the application: uvicorn api.main:app --reload"
 echo ""
